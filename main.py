@@ -42,7 +42,8 @@ with st.sidebar:
         max_value=distancia_max,
         value=(distancia_min, distancia_max)
     )
-
+    if dist_range[0] == dist_range[1]:
+        st.warning("Por favor selecciona un rango de distancia válido (el inicio y el fin no pueden ser iguales).")
     # Elemento 7: st.multiselect (Filtrar por Vehículo)
     vehiculos_disponibles = df['delivery_mode'].unique()
     vehiculos_sel = st.multiselect(
