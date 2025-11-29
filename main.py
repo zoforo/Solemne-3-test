@@ -193,13 +193,6 @@ with tab3:
         plt.setp(ax6.get_xticklabels(), rotation=45)
         st.pyplot(fig6)
 
-#Comparativo de restaurantes más populares por zona
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-
-df = pd.read_csv('Delivery.csv')
-st.title("restaurantes más populares por zonas")
 datos_grafico = df["restaurant_zone"].value_counts()
 
 
