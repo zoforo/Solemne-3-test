@@ -44,6 +44,7 @@ with st.sidebar:
     )
     if dist_range[0] == dist_range[1]:
         st.warning("Por favor selecciona un rango de distancia válido (el inicio y el fin no pueden ser iguales).")
+        st.stop() # Esto detiene la ejecución aquí y evita que los gráficos de abajo fallen.
     # Elemento 7: st.multiselect (Filtrar por Vehículo)
     vehiculos_disponibles = df['delivery_mode'].unique()
     vehiculos_sel = st.multiselect(
