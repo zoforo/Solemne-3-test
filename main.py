@@ -17,7 +17,7 @@ df = load_data()
 
 # --- TÍTULO Y DESCRIPCIÓN ---
 # Elemento 1: st.title
-st.title(" 🛵 Dashboard de Eficiencia de Envíos")
+st.title("Dashboard de Eficiencia de Envíos")
 # Elemento 2: st.markdown
 st.markdown("Este tablero analiza los tiempos de entrega según el **clima**, **tráfico** y **vehículo**.")
 
@@ -25,7 +25,7 @@ st.markdown("Este tablero analiza los tiempos de entrega según el **clima**, **
 # Elemento 3: st.sidebar
 with st.sidebar:
     # Elemento 4: st.header
-    st.header("🎛️ Filtros Globales")
+    st.header("Filtros Globales")
     
     # Elemento 5: st.radio (Filtrar por Nivel de Tráfico)
     trafico_filter = st.radio(
@@ -43,7 +43,7 @@ with st.sidebar:
         value=(distancia_min, distancia_max)
     )
     if dist_range[0] == dist_range[1]:
-        st.warning("⚠️ Por favor selecciona un rango de distancia válido (el inicio y el fin no pueden ser iguales).")
+        st.warning("Por favor selecciona un rango de distancia válido (el inicio y el fin no pueden ser iguales).")
         st.stop() # Esto detiene la ejecución aquí y evita que los gráficos de abajo fallen.
     # Elemento 7: st.multiselect (Filtrar por Vehículo)
     vehiculos_disponibles = df['delivery_mode'].unique()
@@ -74,7 +74,7 @@ if vehiculos_sel:
 
 # --- ESTRUCTURA DE PESTAÑAS ---
 # Elemento 8: st.tabs
-tab1, tab2, tab3 = st.tabs(["📊 Visión General", "🚀 Análisis de Flota", "📍 Rutas y Zonas"])
+tab1, tab2, tab3 = st.tabs(["Visión General", "Análisis de Flota", "Rutas y Zonas"])
 
 # === PESTAÑA 1: VISIÓN GENERAL ===
 with tab1:
@@ -170,6 +170,6 @@ with tab3:
     st.divider()
     
     # Elemento 12: st.button
-    if st.button("🎲 Mostrar una orden aleatoria"):
+    if st.button("Mostrar una orden aleatoria"):
         random_order = df.sample(1).iloc[0]
         st.success(f"Orden #{random_order['order_id']}: De {random_order['restaurant_zone']} a {random_order['customer_zone']} en {random_order['delivery_mode']}.")
