@@ -1,163 +1,176 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns # Usaremos seaborn para facilitar el diagrama de caja
 
-# Configuración de página
-st.set_page_config(page_title="Delivery Dashboard Pro", layout="wide")
+# --- CONFIGURACIÓN DE LA PÁGINA (Opcional, pero da buen estilo) ---
+st.set_page_config(page_title="Delivery Dashboard", layout="wide")
 
-# --- CARGA DE DATOS ---
-@st.cache_data
+# --- 1. CARGA DE DATOS ---
+@st.cache_data # Esto ayuda a que la página no recargue el CSV cada vez que tocas un botón
 def load_data():
+    # Asegúrate de usar el nombre correcto de tu archivo
     df = pd.read_csv("Food_Delivery_Route_Efficiency_Dataset.csv")
     return df
 
 df = load_data()
 
-st.title("🛵 Dashboard de Operaciones de Delivery")
-st.markdown("Análisis avanzado de rutas, flota y tiempos de entrega.")
+# --- TÍTULO Y DESCRIPCIÓN ---
+# Elemento 1: st.title
+st.title("Dashboard de Eficiencia de Envíos")
+# Elemento 2: st.markdown
+st.markdown("Este tablero analiza los tiempos de entrega según el **clima**, **tráfico** y **vehículo**.")
 
-# --- SIDEBAR (FILTROS) ---
+# --- BARRA LATERAL (SIDEBAR) PARA FILTROS ---
+# Elemento 3: st.sidebar
 with st.sidebar:
-    st.header("🎛️ Filtros Globales")
-    
-    # Filtro de Tráfico
-    trafico_filter = st.multiselect(
+    # Elemento 4: st.header
+    st.header("Filtros Globales")
+
+    # Elemento 5: st.radio (Filtrar por Nivel de Tráfico)
+    trafico_filter = st.radio(
         "Nivel de Tráfico:",
-        options=["Low", "Medium", "High"],
-        default=["Low", "Medium", "High"]
+        options=["Todos", "Low", "Medium", "High"],
+        index=0
     )
-    
-    # Filtro de Distancia (CON CORRECCIÓN DE ERROR)
-    min_dist, max_dist = int(df['distance_km'].min()), int(df['distance_km'].max())
+
+    # Elemento 6: st.slider (Filtrar por Distancia)
+    distancia_min, distancia_max = int(df['distance_km'].min()), int(df['distance_km'].max())
     dist_range = st.slider(
         "Rango de Distancia (km):",
-        min_value=min_dist,
-        max_value=max_dist,
-        value=(min_dist, max_dist)
+        min_value=distancia_min,
+        max_value=distancia_max,
+        value=(distancia_min, distancia_max)
     )
-    
-    # Validación para evitar error de rango 0-0
+
     if dist_range[0] == dist_range[1]:
-        st.warning("⚠️ El inicio y fin del rango no pueden ser iguales.")
-        st.stop()
+        st.warning("Por favor selecciona un rango de distancia válido (el inicio y el fin no pueden ser iguales).")
+        st.stop() # Esto detiene la ejecución aquí y evita que los gráficos de abajo fallen.
+    # Elemento 7: st.multiselect (Filtrar por Vehículo)
+    vehiculos_disponibles = df['delivery_mode'].unique()
+    vehiculos_sel = st.multiselect(
+        "Selecciona Vehículos:",
+        options=vehiculos_disponibles,
+        default=vehiculos_disponibles
+    )
 
-    st.info("Estos filtros afectan a TODAS las pestañas.")
+    st.info("Ajusta los filtros para actualizar los gráficos.")
 
-# Aplicar filtros
-df_filtered = df[
-    (df['traffic_level'].isin(trafico_filter)) &
-    (df['distance_km'] >= dist_range[0]) &
-    (df['distance_km'] <= dist_range[1])
+# --- APLICAR FILTROS AL DATAFRAME ---
+df_filtered = df.copy()
+
+# Filtro de Tráfico
+if trafico_filter != "Todos":
+    df_filtered = df_filtered[df_filtered['traffic_level'] == trafico_filter]
+
+# Filtro de Distancia
+df_filtered = df_filtered[
+    (df_filtered['distance_km'] >= dist_range[0]) & 
+    (df_filtered['distance_km'] <= dist_range[1])
 ]
 
-# --- PESTAÑAS ---
-tab1, tab2, tab3 = st.tabs(["📊 Visión General", "🚀 Flota y Vehículos", "📍 Zonas y Rutas"])
+# Filtro de Vehículo
+if vehiculos_sel:
+    df_filtered = df_filtered[df_filtered['delivery_mode'].isin(vehiculos_sel)]
 
-# === PESTAÑA 1: VISIÓN GENERAL Y CLIMA ===
+# --- ESTRUCTURA DE PESTAÑAS ---
+# Elemento 8: st.tabs
+tab1, tab2, tab3 = st.tabs(["Visión General", "Análisis de Flota", "Rutas y Zonas"])
+
+# === PESTAÑA 1: VISIÓN GENERAL ===
 with tab1:
-    # Métricas
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Total Órdenes", len(df_filtered))
-    c2.metric("Tiempo Promedio", f"{df_filtered['delivery_time_min'].mean():.1f} min")
-    c3.metric("Distancia Promedio", f"{df_filtered['distance_km'].mean():.1f} km")
-    
-    st.divider()
-    
-    col_izq, col_der = st.columns(2)
-    
-    # IMPLEMENTACIÓN IDEA #4: Vehículos más populares (Gráfico de Torta)
-    with col_izq:
-        st.subheader("🚗 Popularidad de Vehículos")
+    st.subheader("Métricas Clave")
+
+    # Elemento 9: st.metric (KPIs)
+    col1, col2, col3 = st.columns(3)
+    avg_time = df_filtered['delivery_time_min'].mean()
+    total_orders = len(df_filtered)
+
+    col1.metric("Total de Órdenes", total_orders)
+    col2.metric("Tiempo Promedio (min)", f"{avg_time:.2f} min")
+    col3.metric("Distancia Promedio", f"{df_filtered['distance_km'].mean():.2f} km")
+
+    col_graph1, col_graph2 = st.columns(2)
+
+    with col_graph1:
+        st.write("##### Distribución por Clima (Pie Chart)")
+        # GRÁFICO 1: PIE CHART
         if not df_filtered.empty:
-            vehiculos_counts = df_filtered['delivery_mode'].value_counts()
+            weather_counts = df_filtered['weather'].value_counts()
+
             fig1, ax1 = plt.subplots()
-            ax1.pie(vehiculos_counts, labels=vehiculos_counts.index, autopct='%1.1f%%', startangle=140, colors=sns.color_palette("pastel"))
+            ax1.pie(weather_counts, labels=weather_counts.index, autopct='%1.1f%%', startangle=90)
+            ax1.axis('equal')  # Para que sea un círculo perfecto
             st.pyplot(fig1)
         else:
-            st.warning("Sin datos para mostrar.")
+            st.warning("No hay datos para mostrar.")
 
-    # IMPLEMENTACIÓN IDEA #3: Relación Tiempo vs Clima (Gráfico de Barras)
-    with col_der:
-        st.subheader("⛈️ Tiempo Promedio por Clima")
-        if not df_filtered.empty:
-            df_weather = df_filtered.groupby('weather')['delivery_time_min'].mean().sort_values()
-            fig2, ax2 = plt.subplots()
-            # Usamos barh para barras horizontales, se leen mejor las etiquetas
-            ax2.barh(df_weather.index, df_weather.values, color='teal')
-            ax2.set_xlabel("Minutos Promedio")
-            st.pyplot(fig2)
+    with col_graph2:
+        st.write("##### Histograma de Tiempos de Entrega")
+        # GRÁFICO 2: HISTOGRAMA
+        fig2, ax2 = plt.subplots()
+        ax2.hist(df_filtered['delivery_time_min'], bins=15, color='skyblue', edgecolor='black')
+        ax2.set_xlabel("Minutos")
+        ax2.set_ylabel("Frecuencia")
+        st.pyplot(fig2)
 
-# === PESTAÑA 2: FLOTA (VEHÍCULOS) ===
+# === PESTAÑA 2: ANÁLISIS DE FLOTA ===
 with tab2:
-    st.markdown("### Análisis de Rendimiento de la Flota")
-    
-    # IMPLEMENTACIÓN IDEA #5: Vehículos por Zona (Interactivo + Box Plot)
-    # Nota: Un Box Plot es ideal para ver rangos de tiempos (mínimo, máximo, mediana)
-    
-    st.write("#### 📦 Distribución de Tiempos por Vehículo (Filtrado por Zona)")
-    
-    # Selector interactivo para la zona (restaurante)
-    zonas_disponibles = df['restaurant_zone'].unique()
-    zona_seleccionada = st.selectbox("Selecciona una Zona de Restaurante:", zones_disponibles)
-    
-    # Filtramos datos específicos para este gráfico
-    df_zona = df_filtered[df_filtered['restaurant_zone'] == zona_seleccionada]
-    
-    if not df_zona.empty:
-        fig3, ax3 = plt.subplots(figsize=(10, 5))
-        # Boxplot: Eje X = Vehículo, Eje Y = Tiempo
-        sns.boxplot(data=df_zona, x='delivery_mode', y='delivery_time_min', palette="Set2", ax=ax3)
-        ax3.set_title(f"Variabilidad de Tiempos en Zona {zona_seleccionada}")
-        ax3.set_ylabel("Tiempo de Entrega (min)")
-        st.pyplot(fig3)
-    else:
-        st.info(f"No hay datos para la zona {zona_seleccionada} con los filtros actuales.")
+    st.subheader("Rendimiento por Tipo de Vehículo")
+
+    # Elemento 10: st.selectbox (Elegir qué variable comparar)
+    variable_a_comparar = st.selectbox(
+        "¿Qué quieres comparar?",
+        ["Tiempo de Entrega (min)", "Distancia Recorrida (km)"]
+    )
+
+    col_mapping = {
+        "Tiempo de Entrega (min)": "delivery_time_min",
+        "Distancia Recorrida (km)": "distance_km"
+    }
+    col_name = col_mapping[variable_a_comparar]
+
+    # Agrupar datos
+    df_grouped = df_filtered.groupby('delivery_mode')[col_name].mean().sort_values()
+
+    # GRÁFICO 3: BAR PLOT
+    fig3, ax3 = plt.subplots(figsize=(8, 5))
+    df_grouped.plot(kind='bar', color='orange', ax=ax3)
+    ax3.set_ylabel("Promedio")
+    ax3.set_title(f"Promedio de {variable_a_comparar} por Vehículo")
+    plt.xticks(rotation=45)
+    st.pyplot(fig3)
+
+    # Elemento 11: st.expander con st.dataframe
+    with st.expander("Ver datos detallados de la flota"):
+        st.dataframe(df_grouped)
 
 # === PESTAÑA 3: RUTAS Y ZONAS ===
 with tab3:
-    
-    # IMPLEMENTACIÓN IDEA #1: Scatter Plot Interactivo
-    st.subheader("⏱️ Relación Distancia vs. Tiempo")
-    
-    # Botón interactivo (Radio) para elegir el color
-    criterio_color = st.radio(
-        "Colorear puntos por:",
-        options=["Nivel de Tráfico", "Tipo de Vehículo"],
-        horizontal=True
-    )
-    
-    # Mapeo de la selección del usuario a la columna del dataframe
-    columna_color = 'traffic_level' if criterio_color == "Nivel de Tráfico" else 'delivery_mode'
-    
-    if not df_filtered.empty:
-        fig4, ax4 = plt.subplots(figsize=(10, 6))
-        # Usamos seaborn scatterplot porque maneja los colores (hue) automáticamente muy bien
-        sns.scatterplot(data=df_filtered, x='distance_km', y='delivery_time_min', hue=columna_color, style=columna_color, s=100, ax=ax4)
-        ax4.set_title(f"Impacto de la Distancia en el Tiempo (según {criterio_color})")
-        ax4.grid(True, linestyle='--', alpha=0.3)
-        st.pyplot(fig4)
-    
+    st.subheader("Relación Distancia vs. Tiempo")
+
+    # GRÁFICO 4: SCATTER PLOT
+    # Colorear por nivel de tráfico
+    colors = {'Low': 'green', 'Medium': 'yellow', 'High': 'red'}
+
+    fig4, ax4 = plt.subplots(figsize=(8, 6))
+
+    # Hacemos el scatter
+    for traffic, color in colors.items():
+        subset = df_filtered[df_filtered['traffic_level'] == traffic]
+        ax4.scatter(subset['distance_km'], subset['delivery_time_min'], 
+                    c=color, label=traffic, alpha=0.6, edgecolors='w')
+
+    ax4.set_xlabel("Distancia (km)")
+    ax4.set_ylabel("Tiempo de Entrega (min)")
+    ax4.legend(title="Tráfico")
+    ax4.grid(True, linestyle='--', alpha=0.5)
+
+    st.pyplot(fig4)
+
     st.divider()
-    
-    col_z1, col_z2 = st.columns(2)
-    
-    # IMPLEMENTACIÓN IDEA #2: Cantidad de entregas por Zona Cliente
-    with col_z1:
-        st.subheader("🏠 Pedidos por Zona (Cliente)")
-        conteo_zonas = df_filtered['customer_zone'].value_counts()
-        fig5, ax5 = plt.subplots()
-        ax5.bar(conteo_zonas.index, conteo_zonas.values, color='salmon')
-        ax5.set_ylabel("Cantidad de Pedidos")
-        plt.xticks(rotation=45)
-        st.pyplot(fig5)
-        
-    # IMPLEMENTACIÓN IDEA #6: Popularidad de Zonas de Restaurante
-    with col_z2:
-        st.subheader("🍔 Pedidos por Zona (Restaurante)")
-        conteo_rest = df_filtered['restaurant_zone'].value_counts()
-        fig6, ax6 = plt.subplots()
-        ax6.bar(conteo_rest.index, conteo_rest.values, color='lightgreen')
-        ax6.set_ylabel("Cantidad de Pedidos")
-        plt.xticks(rotation=45)
-        st.pyplot(fig6)
+
+    # Elemento 12: st.button
+    if st.button("Mostrar una orden aleatoria"):
+        random_order = df.sample(1).iloc[0]
+        st.success(f"Orden #{random_order['order_id']}: De {random_order['restaurant_zone']} a {random_order['customer_zone']} en {random_order['delivery_mode']}.")
