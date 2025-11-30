@@ -57,7 +57,7 @@ tab1, tab2, tab3 = st.tabs(["Visión General", "Vehículos", "Zonas y Rutas"])
 with tab1:
     # 4. Columns y 5. Metrics
     c1, c2, c3 = st.columns(3)
-    c1.metric("Total Órdenes", len(df_filtered))
+    c1.metric("Total Ordenes", len(df_filtered))
     c2.metric("Tiempo Promedio", f"{df_filtered['delivery_time_min'].mean():.1f} min")
     c3.metric("Distancia Promedio", f"{df_filtered['distance_km'].mean():.1f} km")
     
@@ -81,7 +81,7 @@ with tab1:
 
     # --- GRÁFICO 2: BAR CHART HORIZONTAL (Tiempo vs Clima) ---
     with col_der:
-        st.subheader("Tiempo Promedio por Clima")
+        st.subheader("Tiempo Promedio según el Clima")
         if not df_filtered.empty:
             # Agrupamos por clima y sacamos promedio de tiempo
             df_weather = df_filtered.groupby('weather')['delivery_time_min'].mean().sort_values()
@@ -97,7 +97,7 @@ with tab2:
     
     # 6. Selectbox (Interacción para elegir Zona)
     zonas = df['restaurant_zone'].unique()
-    zona_sel = st.selectbox("Selecciona Zona de Restaurante:", zonas)
+    zona_sel = st.selectbox("Selecciona la Zona del Restaurante:", zonas)
     
     # Filtramos datos SOLO para esa zona
     df_zona = df_filtered[df_filtered['restaurant_zone'] == zona_sel]
@@ -125,7 +125,7 @@ with tab2:
         ax3.grid(True, linestyle='--', alpha=0.3)
         
         st.pyplot(fig3)
-        st.caption("La línea naranja dentro de la caja indica el tiempo mediano.")
+        st.caption("La línea naranja dentro de la caja indica la mediana de tiempo.")
     else:
         st.warning(f"No hay envíos en la zona {zona_sel} con los filtros actuales.")
 
