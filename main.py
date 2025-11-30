@@ -1,13 +1,9 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
-# --- CONFIGURACIÓN DE PÁGINA ---
-st.set_page_config(page_title="Delivery Dashboard", layout="wide")
+st.set_page_config(page_title="Delivery Dashboard", layout="wide") #st.set_page_config sirve para congifurar los ajustes del la página, por ej: page_title (cambia el título que se ve en la pestaña del navegador)
 
-# --- CARGA DE DATOS ---
-@st.cache_data
 def load_data():
     # Asegúrate de que el CSV está en la misma carpeta
     df = pd.read_csv("Food_Delivery_Route_Efficiency_Dataset.csv")
