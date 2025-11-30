@@ -191,14 +191,3 @@ with tab3:
         ax6.set_ylabel("Cantidad")
         plt.setp(ax6.get_xticklabels(), rotation=45)
         st.pyplot(fig6)
-
-datos_grafico = df["restaurant_zone"].value_counts()
-
-
-color_elegido = st.color_picker("Elige un color para las barras", "#00f900")
-
-fig, ax = plt.subplots()
-ax.bar(datos_grafico.index, datos_grafico.values, color=color_elegido)
-ax.set_title("Pedidos por Zona")
-ax.set_ylabel("Cantidad")
-st.pyplot(fig)
