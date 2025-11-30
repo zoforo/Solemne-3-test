@@ -127,14 +127,14 @@ with tab2:
         st.pyplot(fig3)
         st.caption("La línea naranja dentro de la caja indica la mediana de tiempo.")
     else:
-        st.warning(f"No hay envíos en la zona {zona_sel} con los filtros actuales.")
+        st.warning(f"No hay envíos en la zona {zona_sel} con los filtros seleccionados.")
 
 # === PESTAÑA 3: RUTAS (Scatter Interactivo) ===
 with tab3:
-    st.subheader("Relación Distancia vs. Tiempo")
+    st.subheader("Relación Distancia vs Tiempo")
     
     # 7. Radio (Interacción para elegir color)
-    criterio = st.radio(
+    selec_dist_tiempo = st.radio(
         "Colorear puntos por:",
         ["Nivel de Tráfico", "Tipo de Vehículo"],
         horizontal=True
@@ -142,7 +142,7 @@ with tab3:
     
     # Mapeamos la opción del usuario al nombre real de la columna
     col_map = {"Nivel de Tráfico": "traffic_level", "Tipo de Vehículo": "delivery_mode"}
-    columna_elegida = col_map[criterio]
+    columna_elegida = col_map[selec_dist_tiempo]
     
     # --- GRÁFICO 4: SCATTER PLOT (Con loop para colores) ---
     if not df_filtered.empty:
