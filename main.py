@@ -184,22 +184,24 @@ with tab3:
         
     # --- GRÁFICO 6: BAR PLOT (Pedidos por Zona Restaurante) ---
     with col_z2:
-        st.subheader("Pedidos por Zona (Restaurante)")
-        conteo_rest = df_filtered['restaurant_zone'].value_counts()
+        import streamlit as st
+        import pandas as pd
+        import matplotlib.pyplot as plt
         
-        fig6, ax6 = plt.subplots()
-        ax6.bar(conteo_rest.index, conteo_rest.values, color='lightgreen')
-        ax6.set_ylabel("Cantidad")
-        plt.setp(ax6.get_xticklabels(), rotation=45)
-        st.pyplot(fig6)
+        st.title("Restaurantes más populares por zonas")
+        df = pd.read_csv('Delivery.csv')  #Carga datos del df
+        st.sidebar.header("Opciones de Diseño")
+        color_elegido = st.sidebar.color_picker("Elige un color para las barras", "#00f900") #Permite al usuario elegir colores
+        datos_grafico = df["restaurant_zone"].value_counts() #Ordena de mayor a menor
 
-datos_grafico = df["restaurant_zone"].value_counts()
+       
+        fig6, ax6 = plt.subplots(figsize=(6, 4))
+        ax.bar(datos_grafico.index, datos_grafico.values, color=color_elegido) 
+        ax.set_title("Cantidad de Pedidos por Zona")
+        ax.set_xlabel("Zona del Restaurante")
+        ax.set_ylabel("Total de Pedidos")
+        st.pyplot(fig6, use_container_width=False)
 
-
-color_elegido = st.color_picker("Elige un color para las barras", "#00f900")
-
-fig, ax = plt.subplots()
-ax.bar(datos_grafico.index, datos_grafico.values, color=color_elegido)
-ax.set_title("Pedidos por Zona")
-ax.set_ylabel("Cantidad")
-st.pyplot(fig)
+        
+        st.write("Detalle de los datos:", datos_grafico) #Números exactos
+                
