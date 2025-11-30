@@ -183,11 +183,15 @@ with tab3:
         
     # --- GRÁFICO 6: BAR PLOT (Pedidos por Zona Restaurante) ---
     with col_z2:
-        st.subheader("Pedidos por Zona (Restaurante)")
-        conteo_rest = df_filtered['restaurant_zone'].value_counts()
+         st.subheader("Pedidos por Zona (Restaurante)") 
+        datos_grafico = df["restaurant_zone"].value_counts() #Lee df y ordena
         
-        fig6, ax6 = plt.subplots()
-        ax6.bar(conteo_rest.index, conteo_rest.values, color='lightgreen')
+        
+        color_elegido = st.color_picker("Elige un color para las barras", "#00f900") #Variable para elegir color a gusto del Usuario
+
+        fig6, ax6 = plt.subplots(figsize=(5, 3))
+        ax6.bar(datos_grafico.index, datos_grafico.values, color=color_elegido) #Predetermina el color elegido arriba
+        ax6.set_title("Pedidos por Zona")
         ax6.set_ylabel("Cantidad")
-        plt.setp(ax6.get_xticklabels(), rotation=45)
-        st.pyplot(fig6)
+        st.pyplot(fig6, use_container_width=False) #a parte de plotear evita que el gráfico se estire según la página
+        st.write("Detalle de los datos:", datos_grafico) #Tabla de datos numérica
