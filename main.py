@@ -13,7 +13,7 @@ df = load_data()
 
 # --- TÍTULO PRINCIPAL ---
 st.title("Dashboard de Operaciones de Delivery")
-st.markdown("Análisis de tiempos, rutas y flota utilizando **Matplotlib** puro.")
+st.markdown("Análisis de tiempos, rutas y vehículos.")
 
 # --- SIDEBAR: FILTROS GLOBALES ---
 with st.sidebar:
