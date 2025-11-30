@@ -115,7 +115,7 @@ with tab2:
             datos_para_box.append(tiempos)
             labels_box.append(v)
             
-        fig3, ax3 = plt.subplots(figsize=(5, 5))
+        fig3, ax3 = plt.subplots(figsize=(8, 5))
         # Creamos el boxplot
         ax3.boxplot(datos_para_box, labels=labels_box, patch_artist=True)
         
