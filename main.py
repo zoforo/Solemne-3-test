@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Delivery Dashboard", layout="wide") #st.set_page_config sirve para congifurar los ajustes del la página, por ej: page_title (cambia el título que se ve en la pestaña del navegador)
-
+#'layout="wide" sirve para usar todo el espacio en pantalla
 def load_data():
     # Asegúrate de que el CSV está en la misma carpeta
     df = pd.read_csv("Food_Delivery_Route_Efficiency_Dataset.csv")
@@ -51,7 +51,7 @@ df_filtered = df[
 
 # --- PESTAÑAS PRINCIPALES ---
 # 3. Tabs
-tab1, tab2, tab3 = st.tabs(["Visión General", "Flota y Vehículos", "Zonas y Rutas"])
+tab1, tab2, tab3 = st.tabs(["Visión General", "Vehículos", "Zonas y Rutas"])
 
 # === PESTAÑA 1: VISIÓN GENERAL ===
 with tab1:
@@ -115,7 +115,7 @@ with tab2:
             datos_para_box.append(tiempos)
             labels_box.append(v)
             
-        fig3, ax3 = plt.subplots(figsize=(8, 5))
+        fig3, ax3 = plt.subplots(figsize=(5, 5))
         # Creamos el boxplot
         ax3.boxplot(datos_para_box, labels=labels_box, patch_artist=True)
         
