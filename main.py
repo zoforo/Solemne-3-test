@@ -60,6 +60,8 @@ with tab1: #Esto sirve para trabajar dentro de la 'tab1'
             ax1.pie(counts, labels=counts.index, autopct='%1.1f%%', startangle=90, #.pie crea el gráfico de torta
                     colors=['#ff9999','#66b3ff','#99ff99','#ffcc99']) #autopct sirve para calcular y escribir el porcentaje que representa cada pedazo de la torta
             st.pyplot(fig1) #Muestra la figura 'fig1'
+            with st.expander("Ver datos detallados de la flota"):
+            st.dataframe(counts)
         else: #En caso de que df_filtered SI esté vacío, lanzará un aviso de que no hay datos disponibles
             st.info("No hay datos disponibles.")
 
@@ -72,8 +74,8 @@ with tab1: #Esto sirve para trabajar dentro de la 'tab1'
             ax2.barh(df_weather.index, df_weather.values, color='teal') #.barh crea el gráfico de barra horizontal, .index son las etiquetas (clima) y .values son los números (minutos de delivery)
             ax2.set_xlabel("Minutos Promedio")
             st.pyplot(fig2)
-    st.subheader("Detalle de los Datos")
-    tabla= df.groupby("restaurant_zone")["order_id"].count().sort_values()
+            with st.expander("Ver datos detallados de la flota"):
+            st.dataframe(df_weather)
     
 
 with tab2: #Trabajando dentro del tab2
@@ -104,6 +106,8 @@ with tab2: #Trabajando dentro del tab2
         
         st.pyplot(fig3)
         st.caption("La línea naranja dentro de la caja indica la mediana de tiempo.") #Escribe un texto (pequeño) bajo el gráfico
+        with st.expander("Ver datos detallados de la flota"):
+        st.dataframe(df_zona)
     else:
         st.warning(f"No hay envíos en la zona {zona_sel} con los filtros seleccionados.") #Parte del manejo de errores en caso de que no cumpla con los requerimientos.
 
@@ -157,7 +161,8 @@ with tab3:
         ax5.set_ylabel("Cantidad")
         plt.setp(ax5.get_xticklabels(), rotation=45)
         st.pyplot(fig5) # Rotamos 45 grados las etiquetas para que quepan en su espacio del gráfico
-        
+        with st.expander("Ver datos detallados de la flota"):
+        st.dataframe(conteo_clientes)
     #Pedidos por zona (restaurante)
     with col_z2:
         st.subheader("Pedidos por Zona (Restaurante)") 
@@ -173,3 +178,5 @@ with tab3:
         ax6.set_ylabel("Cantidad")
         st.pyplot(fig6, use_container_width=False) #A parte de plotear evita que el gráfico se estire según la página
         st.write("Detalle de los datos:", datos_grafico) #Tabla de datos numérica
+        with st.expander("Ver datos detallados de la flota"):
+        st.dataframe(datos_grafico)
