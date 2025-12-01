@@ -146,9 +146,11 @@ with tab3:
         st.subheader("Pedidos por Zona (Cliente)")
         conteo_clientes = df_filtered['customer_zone'].value_counts()# Contamos cuántos pedidos hay por zona (se ordena con el value_counts())
 
+        color_elegido1 = st.color_picker("Elige un color para las barras", "#00f900") #Variable para elegir color a gusto del Usuario
+
         #Gráfico 5 (barras)
         fig5, ax5 = plt.subplots()
-        ax5.bar(conteo_clientes.index, conteo_clientes.values, color='salmon')
+        ax5.bar(conteo_clientes.index, conteo_clientes.values, color=color_elegido1)
         ax5.set_ylabel("Cantidad")
         plt.setp(ax5.get_xticklabels(), rotation=45)
         st.pyplot(fig5) # Rotamos 45 grados las etiquetas para que quepan en su espacio del gráfico
@@ -158,13 +160,12 @@ with tab3:
         st.subheader("Pedidos por Zona (Restaurante)") 
         datos_grafico = df["restaurant_zone"].value_counts() #Lee df y ordena
         
-        
-        color_elegido = st.color_picker("Elige un color para las barras", "#00f900") #Variable para elegir color a gusto del Usuario
+        color_elegido2 = st.color_picker("Elige un color para las barras", "#00f900") #Variable para elegir color a gusto del Usuario
         
         #Gráfico 6
 
         fig6, ax6 = plt.subplots(figsize=(5, 3))
-        ax6.bar(datos_grafico.index, datos_grafico.values, color=color_elegido) #Predetermina el color elegido arriba
+        ax6.bar(datos_grafico.index, datos_grafico.values, color=color_elegido2) #Predetermina el color elegido arriba
         ax6.set_title("Pedidos por Zona")
         ax6.set_ylabel("Cantidad")
         st.pyplot(fig6, use_container_width=False) #A parte de plotear evita que el gráfico se estire según la página
