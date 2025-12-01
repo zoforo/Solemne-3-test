@@ -160,7 +160,7 @@ with tab3:
         st.subheader("Pedidos por Zona (Restaurante)") 
         datos_grafico = df["restaurant_zone"].value_counts() #Lee df y ordena
         
-        color_elegido2 = st.color_picker("Elige un color para las barras", "#00f900") #Variable para elegir color a gusto del Usuario
+        color_elegido2 = st.color_picker("Elige un color para las barras", "#ffcc99") #Variable para elegir color a gusto del Usuario
         
         #Gráfico 6
 
